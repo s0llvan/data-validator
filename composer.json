@@ -1,0 +1,23 @@
+{
+    "name": "s0llvan/data-validator",
+    "description": "Validation tool for data.",
+    "keywords": ["data", "validator", "validation", "sanitizer"],
+    "license": "MIT",
+    "authors": [{
+        "name": "s0llvan",
+        "homepage": "https://github.com/s0llvan"
+    }],
+    "type": "project",
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "5.2.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "S0llvan\\DataValidator\\": "src/",
+            "S0llvan\\DataValidator\\Rule\\": "src/rule"
+        }
+    }
+}
