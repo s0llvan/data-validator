@@ -67,7 +67,11 @@ $rules = [
   'register[password]' => 'required|min_length:8|contains:alpha,numeric'
 ];
 
-$validator = new S0llvan\DataValidator\DataValidator($_POST, $rules, $customMessages);
+$filters = [
+  'register[username]' => 'lowercase'
+];
+
+$validator = new S0llvan\DataValidator\DataValidator($_POST, $rules, $customMessages, $filters);
 
 if($validator->isSubmit()) {
   if($validator->isValid()) {
