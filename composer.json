@@ -17,7 +17,8 @@
     "autoload": {
         "psr-4": {
             "S0llvan\\DataValidator\\": "src/",
-            "S0llvan\\DataValidator\\Rule\\": "src/rule"
+            "S0llvan\\DataValidator\\Rule\\": "src/rule",
+            "S0llvan\\DataValidator\\Filter\\": "src/filter"
         }
     }
 }

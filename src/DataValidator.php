@@ -7,14 +7,16 @@ class DataValidator
    private $data,
       $rules,
       $errors,
-      $customMessages;
+      $customMessages,
+      $filters;
 
-   public function __construct(array $data = [], array $rules = [], array $customMessages = [])
+   public function __construct(array $data = [], array $rules = [], array $customMessages = [], array $filters = [])
    {
       $this->data = $data;
       $this->rules = $rules;
       $this->errors = [];
       $this->customMessages = $customMessages;
+      $this->filters = $filters;
    }
 
    /**
@@ -32,7 +34,7 @@ class DataValidator
                   $rules = $this->rules[$ruleKey];
                   $rules = explode('|', $rules);
                   foreach ($rules as $rule) {
-                     $validate = $this->validateRule($value, $rule);
+                     $validate = $this->applyRule($value, $rule);
                      if (!$validate) {
                         $message = $this->messageRule($ruleKey, $rule);
                         $this->errors[$name][$rule] = $message;
@@ -100,9 +102,17 @@ class DataValidator
          $key = $matches[0];
          if (preg_match('/\[([^\]]*)\]/', $name, $matches)) {
             if (isset($matches[1])) {
+               $filters = $this->filters[$name];
+               $filters = explode('|', $filters);
+
                $name = $matches[1];
+
                if (isset($this->data[$key][$name])) {
                   $value = $this->data[$key][$name];
+
+                  foreach ($filters as $filter) {
+                     $value = $this->applyFilter($value, $filter);
+                  }
                }
             }
          }
@@ -161,22 +171,40 @@ class DataValidator
    }
 
    /**
-    * Validate rule
+    * Apply rule
     * 
     * @param mixed $value
     * @param string $rule
     * 
     * @return boolean
     */
-   private function validateRule($value, $rule)
+   private function applyRule($value, $rule)
    {
       $validate = false;
       if ($rule) {
-         list($rule, $parameters) = $this->call($rule);
+         list($rule, $parameters) = $this->callRule($rule);
          $rule = __NAMESPACE__ . '\\Rule\\' . $rule;
          $validate = $rule::Validate($value, $parameters);
       }
       return $validate;
+   }
+
+   /**
+    * Apply filter
+    * 
+    * @param mixed $value
+    * @param string $filter
+    * 
+    * @return boolean
+    */
+   private function applyFilter($value, $filter)
+   {
+      if ($filter) {
+         list($filter, $parameters) = $this->callFilter($filter);
+         $filter = __NAMESPACE__ . '\\Filter\\' . $filter;
+         $value = $filter::Apply($value, $parameters);
+      }
+      return $value;
    }
 
    /**
@@ -186,7 +214,7 @@ class DataValidator
     * 
     * @return string $rule
     */
-   private function call(string $rule)
+   private function callRule(string $rule)
    {
       $parameters = explode(':', $rule);
 
@@ -206,5 +234,34 @@ class DataValidator
          throw new \ErrorException(__NAMESPACE__ . '\\Rule\\' . $rule . ' class not found');
       }
       return [$rule, $parameters];
+   }
+
+   /**
+    * Call filter class
+    * 
+    * @param string $filter
+    * 
+    * @return string $filter
+    */
+   private function callFilter(string $filter)
+   {
+      $parameters = explode(':', $filter);
+
+      $filter = $parameters[0];
+
+      $filter = explode('_', $filter);
+      $filter = array_map('ucfirst', $filter);
+      $filter = implode('', $filter);
+
+      if (count($parameters)) {
+         unset($parameters[0]);
+         $parameters = implode('', $parameters);
+         $parameters = explode(',', $parameters);
+      }
+
+      if (!class_exists(__NAMESPACE__ . '\\Filter\\' . $filter)) {
+         throw new \ErrorException(__NAMESPACE__ . '\\Filter\\' . $filter . ' class not found');
+      }
+      return [$filter, $parameters];
    }
 } 
