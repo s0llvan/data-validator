@@ -4,5 +4,5 @@ namespace S0llvan\DataValidator\Rule;
 
 interface IBaseRule
 {
-    public static function Validate($value, array $parameters = []);
+    public static function Apply($value, array $parameters = []);
 }

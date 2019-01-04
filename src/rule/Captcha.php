@@ -6,7 +6,7 @@ use ReCaptcha\ReCaptcha;
 
 class Captcha implements IBaseRule
 {
-    public static function Validate($value, array $parameters = [])
+    public static function Apply($value, array $parameters = [])
     {
         $configuration = new \Configuration(1);
         $privateCaptchaKey = $configuration->tab_var[4]->value;

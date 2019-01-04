@@ -4,7 +4,7 @@ namespace S0llvan\DataValidator\Rule;
 
 class AlphaSpace implements IBaseRule
 {
-    public static function Validate($value, array $parameters = [])
+    public static function Apply($value, array $parameters = [])
     {
         $value = trim($value);
         $matches = preg_match("/^\pL+(?>[- ']\pL+)*$/mu", $value, $matches);

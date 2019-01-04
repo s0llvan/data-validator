@@ -182,9 +182,9 @@ class DataValidator
    {
       $validate = false;
       if ($rule) {
-         list($rule, $parameters) = $this->callRule($rule);
+         list($rule, $parameters) = $this->call(Rule::class, $rule);
          $rule = __NAMESPACE__ . '\\Rule\\' . $rule;
-         $validate = $rule::Validate($value, $parameters);
+         $validate = $rule::Apply($value, $parameters);
       }
       return $validate;
    }
@@ -200,7 +200,7 @@ class DataValidator
    private function applyFilter($value, $filter)
    {
       if ($filter) {
-         list($filter, $parameters) = $this->callFilter($filter);
+         list($filter, $parameters) = $this->call(Filter::class, $filter);
          $filter = __NAMESPACE__ . '\\Filter\\' . $filter;
          $value = $filter::Apply($value, $parameters);
       }
@@ -208,21 +208,21 @@ class DataValidator
    }
 
    /**
-    * Call rule class
+    * Call rule or filter class
     * 
-    * @param string $rule
+    * @param string $ruleOrFilter
     * 
-    * @return string $rule
+    * @return string $ruleOrFilter
     */
-   private function callRule(string $rule)
+   private function call($class, string $ruleOrFilter)
    {
-      $parameters = explode(':', $rule);
+      $parameters = explode(':', $ruleOrFilter);
 
-      $rule = $parameters[0];
+      $ruleOrFilter = $parameters[0];
 
-      $rule = explode('_', $rule);
-      $rule = array_map('ucfirst', $rule);
-      $rule = implode('', $rule);
+      $ruleOrFilter = explode('_', $ruleOrFilter);
+      $ruleOrFilter = array_map('ucfirst', $ruleOrFilter);
+      $ruleOrFilter = implode('', $ruleOrFilter);
 
       if (count($parameters)) {
          unset($parameters[0]);
@@ -230,38 +230,9 @@ class DataValidator
          $parameters = explode(',', $parameters);
       }
 
-      if (!class_exists(__NAMESPACE__ . '\\Rule\\' . $rule)) {
-         throw new \ErrorException(__NAMESPACE__ . '\\Rule\\' . $rule . ' class not found');
+      if (!class_exists($class . '\\' . $ruleOrFilter)) {
+         throw new \ErrorException($class . '\\' . $ruleOrFilter . ' class not found');
       }
-      return [$rule, $parameters];
-   }
-
-   /**
-    * Call filter class
-    * 
-    * @param string $filter
-    * 
-    * @return string $filter
-    */
-   private function callFilter(string $filter)
-   {
-      $parameters = explode(':', $filter);
-
-      $filter = $parameters[0];
-
-      $filter = explode('_', $filter);
-      $filter = array_map('ucfirst', $filter);
-      $filter = implode('', $filter);
-
-      if (count($parameters)) {
-         unset($parameters[0]);
-         $parameters = implode('', $parameters);
-         $parameters = explode(',', $parameters);
-      }
-
-      if (!class_exists(__NAMESPACE__ . '\\Filter\\' . $filter)) {
-         throw new \ErrorException(__NAMESPACE__ . '\\Filter\\' . $filter . ' class not found');
-      }
-      return [$filter, $parameters];
+      return [$ruleOrFilter, $parameters];
    }
 } 

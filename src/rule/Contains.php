@@ -4,7 +4,7 @@ namespace S0llvan\DataValidator\Rule;
 
 class Contains implements IBaseRule
 {
-    public static function Validate($value, array $parameters = [])
+    public static function Apply($value, array $parameters = [])
     {
         $valid = false;
         $value = trim($value);
@@ -18,7 +18,7 @@ class Contains implements IBaseRule
             if (class_exists($class)) {
                 $valid = false;
                 for ($i = 0; $i < count($caracters); $i++) {
-                    if ($class::Validate($caracters[$i])) {
+                    if ($class::Apply($caracters[$i])) {
                         $valid = true;
                     }
                 }
