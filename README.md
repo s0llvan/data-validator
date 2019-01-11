@@ -19,6 +19,39 @@ Just clone repository
 git clone https://github.com/s0llvan/data-validator
 ```
 
+### Make your own rules
+Create a new file contains this model
+```
+// MyCustomRule.php
+<?php
+
+namespace S0llvan\DataValidator\Rule;
+
+class MyCustomRule implements IBaseRule
+{
+    public static function Apply($value, array $parameters = [])
+    {
+        // Case sensitive
+        return $value === 'yes' || empty($value);
+    }
+}
+```
+This rule only accept "yes" and empty value.
+
+Call the rule in your other file and don't forget to include your custom rule
+
+```
+require('MyCustomRule.php');
+
+$customMessages = [
+  'status[yes].my_custom_rule' => 'Need "yes" or empty value'
+];
+
+$rules = [
+  'status[yes]' => 'my_custom_rule'
+];
+```
+
 ## Running the tests
 
 ```
